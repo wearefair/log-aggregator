@@ -24,6 +24,7 @@ import (
 
 const (
 	EnvK8ConfigPath                = "FAIR_LOG_K8_CONFIG_PATH"
+	EnvK8Regex                     = "FAIR_LOG_K8_CONTAINER_NAME_REGEX"
 	EnvCursorPath                  = "FAIR_LOG_CURSOR_PATH"
 	EnvMockSource                  = "FAIR_LOG_MOCK_SOURCE"
 	EnvMockDestination             = "FAIR_LOG_MOCK_DESTINATION"
@@ -85,9 +86,10 @@ func main() {
 
 	if configPath := os.Getenv(EnvK8ConfigPath); configPath != "" {
 		k8Transformer := k8.New(k8.Config{
-			K8ConfigPath: configPath,
-			NodeName:     os.Getenv(EnvK8NodeName),
-			MaxPodsCache: 100,
+			K8ConfigPath:                  configPath,
+			NodeName:                      os.Getenv(EnvK8NodeName),
+			MaxPodsCache:                  100,
+			KubernetesContainerNameRegexp: os.Getenv(EnvK8Regex),
 		})
 		transformers = append(transformers, k8Transformer.Transform)
 	}

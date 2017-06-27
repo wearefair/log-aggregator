@@ -10,7 +10,7 @@ import (
 const (
 	CONTAINER_NAME                = "CONTAINER_NAME"
 	CONTAINER_ID_FULL             = "CONTAINER_ID_FULL"
-	KubernetesContainerNameRegexp = `^k8s_(?P<container_name>[^\.]+)\.[^_]+_(?P<pod_name>[^_]+)_(?P<namespace>[^_]+)_[^_]+_[a-f0-9]{8}$`
+	KubernetesContainerNameRegexp = `^k8s_(?P<container_name>[^\._]+)\.?[^_]*_(?P<pod_name>[^_]+)_(?P<namespace>[^_]+)_[^_]+_[a-f0-9]+$`
 )
 
 type Config struct {

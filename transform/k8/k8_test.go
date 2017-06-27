@@ -1,6 +1,7 @@
 package k8
 
 import (
+	"regexp"
 	"testing"
 
 	"github.com/wearefair/log-aggregator/types"
@@ -9,6 +10,46 @@ import (
 	k8types "k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/pkg/api/v1"
 )
+
+func TestMatchRegex(t *testing.T) {
+	regex, err := regexp.Compile(KubernetesContainerNameRegexp)
+	if err != nil {
+		t.Fatal(err)
+	}
+	testCases := []struct {
+		format   string
+		expected map[string]string
+	}{
+		// Kubernetes 1.4 format
+		{
+			format: "k8s_contract-service.165099f9_contract-service-846522753-4ipvq_default_fb181b9e-5617-11e7-9ea7-06dbc747ad30_87a62e46",
+			expected: map[string]string{
+				"container_name": "contract-service",
+				"pod_name":       "contract-service-846522753-4ipvq",
+				"namespace":      "default",
+			},
+		},
+
+		// Kubernetes 1.6 format
+		{
+			format: "k8s_public-api_public-api-962190421-dr91z_default_aeac8a6e-5ad9-11e7-8f60-0250a47643e4_0",
+			expected: map[string]string{
+				"container_name": "public-api",
+				"pod_name":       "public-api-962190421-dr91z",
+				"namespace":      "default",
+			},
+		},
+	}
+
+	for index, testCase := range testCases {
+		result := matchRegex(testCase.format, regex)
+		for k, v := range testCase.expected {
+			if v != result[k] {
+				t.Errorf("Expected %s in test case %d to be %s, but got %s", k, index, v, result[k])
+			}
+		}
+	}
+}
 
 func TestTransform(t *testing.T) {
 	pods := make(map[string]*v1.Pod)
