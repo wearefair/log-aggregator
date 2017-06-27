@@ -8,7 +8,7 @@ dist/log-aggregator-$(GIT_HASH).linux: | dist
 		-e GOARCH=amd64 \
 		-e GOPATH=/usr \
 		golang:1.8.1 \
-	  bash -c "apt-get update && apt-get install libsystemd-dev && \
+	  bash -c "apt-get update && apt-get install libsystemd-dev --assume-yes && \
 			echo 'Running go build...' && go build -ldflags \"-w -s\" -v -o dist/log-aggregator-$(GIT_HASH).linux"
 
 build-linux: dist/log-aggregator-$(GIT_HASH).linux
