@@ -1,6 +1,8 @@
 PACKAGE=log-aggregator
 GIT_HASH := $(shell git rev-parse HEAD)
 
+default: build
+
 dist/log-aggregator-$(GIT_HASH).linux: | dist
 	docker run --rm -v $$(pwd):/usr/src/github.com/wearefair/log-aggregator \
 	  -w /usr/src/github.com/wearefair/log-aggregator \

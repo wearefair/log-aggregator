@@ -2,10 +2,15 @@ package k8
 
 import (
 	"fmt"
+	"path/filepath"
 	"time"
+
+	"go.uber.org/zap"
+	fsnotify "gopkg.in/fsnotify.v1"
 
 	lru "github.com/hashicorp/golang-lru"
 	"github.com/pkg/errors"
+	"github.com/wearefair/service-kit-go/logging"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/util/wait"
@@ -30,6 +35,46 @@ type podTracker struct {
 	// The name of the node that we are running on.
 	NodeName string
 	cache    *lru.Cache
+}
+
+func newTracker(conf Config) (tracker, error) {
+	k8, err := newK8(conf.K8ConfigPath)
+	if err != nil {
+		return nil, err
+	}
+	tracker := newPodTracker(k8, conf.NodeName, conf.MaxPodsCache)
+	tracker.watchForPods()
+	return tracker, nil
+}
+
+func watchForK8ConfigFile(client *Client, conf Config) {
+	watcher, err := fsnotify.NewWatcher()
+	if err != nil {
+		panic(err)
+	}
+
+	err = watcher.Add(filepath.Dir(conf.K8ConfigPath))
+	if err != nil {
+		panic(err)
+	}
+
+	for {
+		select {
+		case event := <-watcher.Events:
+			logging.Logger().Info("Got event for file", zap.String("name", event.Name))
+			if event.Name == conf.K8ConfigPath {
+				logging.Logger().Info("Creating new tracker for k8 config file")
+				tracker, err := newTracker(conf)
+				if err != nil {
+					logging.Logger().Error("Got error creating k8 tracker on fsnotify", zap.Error(err))
+				} else {
+					client.tracker = tracker
+					watcher.Close()
+					return
+				}
+			}
+		}
+	}
 }
 
 func newK8(k8ConfigPath string) (*kubernetes.Clientset, error) {

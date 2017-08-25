@@ -11,107 +11,126 @@ Note that zap only supports the two most recent minor versions of Go.
 ## Quick Start
 
 In contexts where performance is nice, but not critical, use the
-`SugaredLogger`. It's 4-10x faster than than other structured logging libraries
-and includes both structured and `printf`-style APIs.
+`SugaredLogger`. It's 4-10x faster than than other structured logging
+packages and includes both structured and `printf`-style APIs.
 
 ```go
 logger, _ := zap.NewProduction()
+defer logger.Sync() // flushes buffer, if any
 sugar := logger.Sugar()
-sugar.Infow("Failed to fetch URL.",
-  // Structured context as loosely-typed key-value pairs.
+sugar.Infow("failed to fetch URL",
+  // Structured context as loosely typed key-value pairs.
   "url", url,
-  "attempt", retryNum,
+  "attempt", 3,
   "backoff", time.Second,
 )
 sugar.Infof("Failed to fetch URL: %s", url)
 ```
 
-When performance and type safety are critical, use the `Logger`. It's even faster than
-the `SugaredLogger` and allocates far less, but it only supports structured logging.
+When performance and type safety are critical, use the `Logger`. It's even
+faster than the `SugaredLogger` and allocates far less, but it only supports
+structured logging.
 
 ```go
 logger, _ := zap.NewProduction()
-logger.Info("Failed to fetch URL.",
-  // Structured context as strongly-typed Field values.
+defer logger.Sync()
+logger.Info("failed to fetch URL",
+  // Structured context as strongly typed Field values.
   zap.String("url", url),
-  zap.Int("attempt", tryNum),
+  zap.Int("attempt", 3),
   zap.Duration("backoff", time.Second),
 )
 ```
 
+See the [documentation][doc] and [FAQ](FAQ.md) for more details.
+
 ## Performance
 
 For applications that log in the hot path, reflection-based serialization and
-string formatting are prohibitively expensive &mdash; they're CPU-intensive and
-make many small allocations. Put differently, using `encoding/json` and
+string formatting are prohibitively expensive &mdash; they're CPU-intensive
+and make many small allocations. Put differently, using `encoding/json` and
 `fmt.Fprintf` to log tons of `interface{}`s makes your application slow.
 
 Zap takes a different approach. It includes a reflection-free, zero-allocation
-JSON encoder, and the base `Logger` strives to avoid serialization overhead and
-allocations wherever possible. By building the high-level `SugaredLogger` on
-that foundation, zap lets users *choose* when they need to count every
-allocation and when they'd prefer a more familiar, loosely-typed API.
+JSON encoder, and the base `Logger` strives to avoid serialization overhead
+and allocations wherever possible. By building the high-level `SugaredLogger`
+on that foundation, zap lets users *choose* when they need to count every
+allocation and when they'd prefer a more familiar, loosely typed API.
 
 As measured by its own [benchmarking suite][], not only is zap more performant
-than comparable structured logging libraries &mdash; it's also faster than the
+than comparable structured logging packages &mdash; it's also faster than the
 standard library. Like all benchmarks, take these with a grain of salt.<sup
 id="anchor-versions">[1](#footnote-versions)</sup>
 
 Log a message and 10 fields:
 
-| Library | Time | Bytes Allocated | Objects Allocated |
-| :--- | :---: | :---: | :---: |
-| :zap: zap | 1758 ns/op | 705 B/op | 2 allocs/op |
-| :zap: zap (sugared) | 3301 ns/op | 1610 B/op | 20 allocs/op |
-| go-kit | 8923 ns/op | 2895 B/op | 66 allocs/op |
-| lion | 10449 ns/op | 5807 B/op | 63 allocs/op |
-| logrus | 14566 ns/op | 6092 B/op | 78 allocs/op |
-| apex/log | 21129 ns/op | 3833 B/op | 65 allocs/op |
-| log15 | 24687 ns/op | 5632 B/op | 93 allocs/op |
+| Package | Time | Objects Allocated |
+| :--- | :---: | :---: |
+| :zap: zap | 3131 ns/op | 5 allocs/op |
+| :zap: zap (sugared) | 4173 ns/op | 21 allocs/op |
+| zerolog | 16154 ns/op | 90 allocs/op |
+| lion | 16341 ns/op | 111 allocs/op |
+| go-kit | 17049 ns/op | 126 allocs/op |
+| logrus | 23662 ns/op | 142 allocs/op |
+| log15 | 36351 ns/op | 149 allocs/op |
+| apex/log | 42530 ns/op | 126 allocs/op |
 
 Log a message with a logger that already has 10 fields of context:
 
-| Library | Time | Bytes Allocated | Objects Allocated |
-| :--- | :---: | :---: | :---: |
-| :zap: zap | 519 ns/op | 0 B/op | 0 allocs/op |
-| :zap: zap (sugared) | 690 ns/op | 80 B/op | 2 allocs/op |
-| lion | 6012 ns/op | 4074 B/op | 38 allocs/op |
-| go-kit | 7777 ns/op | 3046 B/op | 52 allocs/op |
-| logrus | 9013 ns/op | 4564 B/op | 63 allocs/op |
-| apex/log | 15824 ns/op | 2897 B/op | 51 allocs/op |
-| log15 | 16194 ns/op | 2642 B/op | 44 allocs/op |
+| Package | Time | Objects Allocated |
+| :--- | :---: | :---: |
+| :zap: zap | 380 ns/op | 0 allocs/op |
+| :zap: zap (sugared) | 564 ns/op | 2 allocs/op |
+| zerolog | 321 ns/op | 0 allocs/op |
+| lion | 7092 ns/op | 39 allocs/op |
+| go-kit | 20226 ns/op | 115 allocs/op |
+| logrus | 22312 ns/op | 130 allocs/op |
+| log15 | 28788 ns/op | 79 allocs/op |
+| apex/log | 42063 ns/op | 115 allocs/op |
 
 Log a static string, without any context or `printf`-style templating:
 
-| Library | Time | Bytes Allocated | Objects Allocated |
-| :--- | :---: | :---: | :---: |
-| :zap: zap | 594 ns/op | 0 B/op | 0 allocs/op |
-| standard library | 633 ns/op | 80 B/op | 2 allocs/op |
-| :zap: zap (sugared) | 702 ns/op | 80 B/op | 2 allocs/op |
-| go-kit | 1004 ns/op | 656 B/op | 13 allocs/op |
-| lion | 1543 ns/op | 1224 B/op | 10 allocs/op |
-| logrus | 2476 ns/op | 1505 B/op | 27 allocs/op |
-| apex/log | 3311 ns/op | 584 B/op | 11 allocs/op |
-| log15 | 6159 ns/op | 1592 B/op | 26 allocs/op |
+| Package | Time | Objects Allocated |
+| :--- | :---: | :---: |
+| :zap: zap | 361 ns/op | 0 allocs/op |
+| :zap: zap (sugared) | 534 ns/op | 2 allocs/op |
+| zerolog | 323 ns/op | 0 allocs/op |
+| standard library | 575 ns/op | 2 allocs/op |
+| go-kit | 922 ns/op | 13 allocs/op |
+| lion | 1413 ns/op | 10 allocs/op |
+| logrus | 2291 ns/op | 27 allocs/op |
+| apex/log | 3690 ns/op | 11 allocs/op |
+| log15 | 5954 ns/op | 26 allocs/op |
 
 ## Development Status: Stable
+
 All APIs are finalized, and no breaking changes will be made in the 1.x series
-of releases. Users of semver-aware dependency management systems should pin zap
-to `^1`.
+of releases. Users of semver-aware dependency management systems should pin
+zap to `^1`.
+
+## Contributing
+
+We encourage and support an active, healthy community of contributors &mdash;
+including you! Details are in the [contribution guide](CONTRIBUTING.md) and
+the [code of conduct](CODE_OF_CONDUCT.md). The zap maintainers keep an eye on
+issues and pull requests, but you can also report any negative conduct to
+oss-conduct@uber.com. That email list is a private, safe space; even the zap
+maintainers don't have access, so don't hesitate to hold us to a high
+standard.
 
 <hr>
 
 Released under the [MIT License](LICENSE.txt).
 
 <sup id="footnote-versions">1</sup> In particular, keep in mind that we may be
-benchmarking against slightly older versions of other libraries. Versions are
+benchmarking against slightly older versions of other packages. Versions are
 pinned in zap's [glide.lock][] file. [↩](#anchor-versions)
 
 [doc-img]: https://godoc.org/go.uber.org/zap?status.svg
 [doc]: https://godoc.org/go.uber.org/zap
 [ci-img]: https://travis-ci.org/uber-go/zap.svg?branch=master
 [ci]: https://travis-ci.org/uber-go/zap
-[cov-img]: https://coveralls.io/repos/github/uber-go/zap/badge.svg?branch=master
-[cov]: https://coveralls.io/github/uber-go/zap?branch=master
+[cov-img]: https://codecov.io/gh/uber-go/zap/branch/master/graph/badge.svg
+[cov]: https://codecov.io/gh/uber-go/zap
 [benchmarking suite]: https://github.com/uber-go/zap/tree/master/benchmarks
 [glide.lock]: https://github.com/uber-go/zap/blob/master/glide.lock

@@ -122,6 +122,47 @@ func TestTransform(t *testing.T) {
 	if val := transformed.Fields["kubernetes"].(metadataKubernetes).Labels["label1"]; val != "value1" {
 		t.Errorf("Expected Labels.label1 to be value1, but got %s", val)
 	}
+
+	// Test 1.6 record with pod metadata
+	rec = &types.Record{
+		Fields: map[string]interface{}{
+			"CONTAINER_NAME":    "k8s_my-nginx_my-nginx-379829228-gb3mv_default_3341b837-5b59-11e7-b5c3-024de65267be_0",
+			"CONTAINER_ID_FULL": "mycontainerid",
+		},
+	}
+	pods["default_my-nginx-379829228-gb3mv"] = &v1.Pod{
+		ObjectMeta: metav1.ObjectMeta{
+			UID: k8types.UID("poduid"),
+			Labels: map[string]string{
+				"label1": "value1",
+			},
+		},
+		Spec: v1.PodSpec{
+			NodeName: "myhost",
+		},
+	}
+	transformed, _ = k8.Transform(rec)
+	if val := transformed.Fields["docker"].(metadataDocker).ContainerId; val != "mycontainerid" {
+		t.Errorf("Expected container id to be %s, but got %s", "mycontainerid", val)
+	}
+	if val := transformed.Fields["kubernetes"].(metadataKubernetes).NamespaceName; val != "default" {
+		t.Errorf("Expected NamespaceName to be %s, but got %s", "default", val)
+	}
+	if val := transformed.Fields["kubernetes"].(metadataKubernetes).PodName; val != "my-nginx-379829228-gb3mv" {
+		t.Errorf("Expected PodName to be %s, but got %s", "my-nginx-379829228-gb3mv", val)
+	}
+	if val := transformed.Fields["kubernetes"].(metadataKubernetes).ContainerName; val != "my-nginx" {
+		t.Errorf("Expected ContainerName to be %s, but got %s", "my-nginx", val)
+	}
+	if val := transformed.Fields["kubernetes"].(metadataKubernetes).PodId; val != "poduid" {
+		t.Errorf("Expected PodId to be poduid, but got %s", val)
+	}
+	if val := transformed.Fields["kubernetes"].(metadataKubernetes).Node; val != "myhost" {
+		t.Errorf("Expected Node to be myhost, but got %s", val)
+	}
+	if val := transformed.Fields["kubernetes"].(metadataKubernetes).Labels["label1"]; val != "value1" {
+		t.Errorf("Expected Labels.label1 to be value1, but got %s", val)
+	}
 }
 
 type mockTracker struct {

@@ -1,7 +1,7 @@
 package monitoring
 
 import (
-	"github.com/wearefair/go-http-kit/logging"
+	"github.com/wearefair/service-kit-go/logging"
 	"go.uber.org/zap"
 )
 

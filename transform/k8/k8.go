@@ -1,6 +1,7 @@
 package k8
 
 import (
+	"os"
 	"regexp"
 
 	"github.com/pkg/errors"
@@ -26,14 +27,20 @@ type Client struct {
 }
 
 func New(conf Config) *Client {
-	k8, err := newK8(conf.K8ConfigPath)
-	if err != nil {
-		panic(err)
+	// If the k8 config path doesn't exist, then we need to start a filesystem watcher
+	// to get notified when/if it does, so we can provision the tracker.
+	if _, err := os.Stat(conf.K8ConfigPath); os.IsNotExist(err) {
+		client := NewWithTracker(nil, conf)
+		go watchForK8ConfigFile(client, conf)
+		return client
+	} else {
+		// File might exist, proceed normally.
+		tracker, err := newTracker(conf)
+		if err != nil {
+			panic(err)
+		}
+		return NewWithTracker(tracker, conf)
 	}
-
-	tracker := newPodTracker(k8, conf.NodeName, conf.MaxPodsCache)
-	tracker.watchForPods()
-	return NewWithTracker(tracker, conf)
 }
 
 func NewWithTracker(tracker tracker, conf Config) *Client {
@@ -77,11 +84,15 @@ func (c *Client) Transform(rec *types.Record) (*types.Record, error) {
 				metadata.ContainerName = val
 			}
 
-			pod := c.tracker.Get(metadata.NamespaceName, metadata.PodName)
-			if pod != nil {
-				metadata.PodId = string(pod.ObjectMeta.UID)
-				metadata.Labels = pod.ObjectMeta.Labels
-				metadata.Node = pod.Spec.NodeName
+			// If we don't have a tracker then skip getting pod info
+			// The tracker can be setup after the fact
+			if c.tracker != nil {
+				pod := c.tracker.Get(metadata.NamespaceName, metadata.PodName)
+				if pod != nil {
+					metadata.PodId = string(pod.ObjectMeta.UID)
+					metadata.Labels = pod.ObjectMeta.Labels
+					metadata.Node = pod.Spec.NodeName
+				}
 			}
 
 			rec.Fields["kubernetes"] = metadata

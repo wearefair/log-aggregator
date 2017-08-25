@@ -1,5 +1,59 @@
 # Changelog
 
+## v1.5.0 (22 Jul 2017)
+
+Enhancements:
+
+* [#460][] and [#470][]: Support errors produced by `go.uber.org/multierr`.
+* [#465][]: Support user-supplied encoders for logger names.
+
+Bugfixes:
+
+* [#477][]: Fix a bug that incorrectly truncated deep stacktraces.
+
+Thanks to @richard-tunein and @pavius for their contributions to this release.
+
+## v1.4.1 (08 Jun 2017)
+
+This release fixes two bugs.
+
+Bugfixes:
+
+* [#435][]: Support a variety of case conventions when unmarshaling levels.
+* [#444][]: Fix a panic in the observer.
+
+## v1.4.0 (12 May 2017)
+
+This release adds a few small features and is fully backward-compatible.
+
+Enhancements:
+
+* [#424][]: Add a `LineEnding` field to `EncoderConfig`, allowing users to
+  override the Unix-style default.
+* [#425][]: Preserve time zones when logging times.
+* [#431][]: Make `zap.AtomicLevel` implement `fmt.Stringer`, which makes a
+  variety of operations a bit simpler.
+
+## v1.3.0 (25 Apr 2017)
+
+This release adds an enhancement to zap's testing helpers as well as the
+ability to marshal an AtomicLevel. It is fully backward-compatible.
+
+Enhancements:
+
+* [#415][]: Add a substring-filtering helper to zap's observer. This is
+  particularly useful when testing the `SugaredLogger`.
+* [#416][]: Make `AtomicLevel` implement `encoding.TextMarshaler`.
+
+## v1.2.0 (13 Apr 2017)
+
+This release adds a gRPC compatibility wrapper. It is fully backward-compatible.
+
+Enhancements:
+
+* [#402][]: Add a `zapgrpc` package that wraps zap's Logger and implements
+  `grpclog.Logger`.
+
 ## v1.1.0 (31 Mar 2017)
 
 This release fixes two bugs and adds some enhancements to zap's testing helpers.
@@ -61,7 +115,7 @@ Enhancements:
 
 Thanks to @suyash, @htrendev, @flisky, @Ulexus, and @skipor for their
 contributions to this release.
- 
+
 ## v1.0.0-rc.3 (7 Mar 2017)
 
 This is the third release candidate for zap's stable release. There are no
@@ -177,3 +231,15 @@ upgrade to the upcoming stable release.
 [#385]: https://github.com/uber-go/zap/pull/385
 [#396]: https://github.com/uber-go/zap/pull/396
 [#386]: https://github.com/uber-go/zap/pull/386
+[#402]: https://github.com/uber-go/zap/pull/402
+[#415]: https://github.com/uber-go/zap/pull/415
+[#416]: https://github.com/uber-go/zap/pull/416
+[#424]: https://github.com/uber-go/zap/pull/424
+[#425]: https://github.com/uber-go/zap/pull/425
+[#431]: https://github.com/uber-go/zap/pull/431
+[#435]: https://github.com/uber-go/zap/pull/435
+[#444]: https://github.com/uber-go/zap/pull/444
+[#477]: https://github.com/uber-go/zap/pull/477
+[#465]: https://github.com/uber-go/zap/pull/465
+[#460]: https://github.com/uber-go/zap/pull/460
+[#470]: https://github.com/uber-go/zap/pull/470
