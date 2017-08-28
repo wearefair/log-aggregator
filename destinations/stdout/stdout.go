@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/wearefair/go-http-kit/logging"
 	"github.com/wearefair/log-aggregator/monitoring"
 	"github.com/wearefair/log-aggregator/types"
+	"github.com/wearefair/service-kit-go/logging"
 )
 
 type Client struct {

@@ -14,10 +14,10 @@ import (
 	"github.com/aws/aws-sdk-go/service/firehose"
 	"github.com/cenkalti/backoff"
 	"github.com/pkg/errors"
-	"github.com/wearefair/go-http-kit/logging"
 	"github.com/wearefair/log-aggregator/channel"
 	"github.com/wearefair/log-aggregator/monitoring"
 	"github.com/wearefair/log-aggregator/types"
+	"github.com/wearefair/service-kit-go/logging"
 )
 
 const (
