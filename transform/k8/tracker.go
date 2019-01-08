@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"go.uber.org/zap"
-	fsnotify "gopkg.in/fsnotify.v1"
+	fsnotify "gopkg.in/fsnotify/fsnotify.v1"
 
 	lru "github.com/hashicorp/golang-lru"
 	"github.com/pkg/errors"
