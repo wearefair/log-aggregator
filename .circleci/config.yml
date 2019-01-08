@@ -8,9 +8,20 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Install dep
+          command: go get -u github.com/golang/dep/cmd/dep
+
+      - run:
           name: Install journal development packages
           command: |
             apt-get update && apt-get install -y libsystemd-dev
+
+      - restore_cache:
+          keys:
+            - vendor-dir-{{ checksum "Gopkg.lock" }}
+      - run:
+          name: Install outdated deps
+          command: dep ensure -v
 
       - run:
           name: Run unit tests
