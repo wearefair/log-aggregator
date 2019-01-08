@@ -322,8 +322,8 @@
   revision = "f4b4367115ec2de254587813edaa901bc1c723a8"
 
 [[projects]]
-  digest = "1:ffb471a599e572700e9b7ee4b1d4869382d00f9268e84938c92b01a4d5941d23"
-  name = "gopkg.in/fsnotify.v1"
+  digest = "1:38c783cf85b9454cc02a1a8319239800ed0af6c1c864adf19cea0539e134adad"
+  name = "gopkg.in/fsnotify/fsnotify.v1"
   packages = ["."]
   pruneopts = "UT"
   revision = "4da3e2cfbabc9f751898f250b49f2439785783a1"
@@ -493,7 +493,7 @@
     "github.com/hashicorp/golang-lru",
     "github.com/pkg/errors",
     "go.uber.org/zap",
-    "gopkg.in/fsnotify.v1",
+    "gopkg.in/fsnotify/fsnotify.v1",
     "k8s.io/apimachinery/pkg/apis/meta/v1",
     "k8s.io/apimachinery/pkg/fields",
     "k8s.io/apimachinery/pkg/types",
