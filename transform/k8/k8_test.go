@@ -32,11 +32,11 @@ func TestMatchRegex(t *testing.T) {
 
 		// Kubernetes 1.6 format
 		{
-			format: "k8s_public-api_public-api-962190421-dr91z_default_aeac8a6e-5ad9-11e7-8f60-0250a47643e4_0",
+			format: "k8s_kube-apiserver_kube-apiserver-ip-10-22-0-107.us-west-2.compute.internal_kube-system_045a6a1babb420b8263e0df542f14e88_1",
 			expected: map[string]string{
-				"container_name": "public-api",
-				"pod_name":       "public-api-962190421-dr91z",
-				"namespace":      "default",
+				"container_name": "kube-apiserver",
+				"pod_name":       "kube-apiserver-ip-10-22-0-107.us-west-2.compute.internal",
+				"namespace":      "kube-system",
 			},
 		},
 	}

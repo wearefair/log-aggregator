@@ -6,7 +6,6 @@ import (
 	"github.com/cenkalti/backoff"
 	"github.com/wearefair/log-aggregator/cursor"
 	"github.com/wearefair/log-aggregator/destinations"
-	"github.com/wearefair/log-aggregator/monitoring"
 	"github.com/wearefair/log-aggregator/sources"
 	"github.com/wearefair/log-aggregator/transform"
 	"github.com/wearefair/log-aggregator/types"
@@ -78,7 +77,6 @@ func (p *Pipeline) syncCursor() {
 			return p.conf.Cursor.Set(cursor)
 		}, strategy)
 		if err != nil {
-			monitoring.Error(err)
 			panic(err)
 		}
 	}

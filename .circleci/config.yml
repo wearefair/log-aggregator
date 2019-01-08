@@ -1,0 +1,24 @@
+version: 2
+
+jobs:
+  build:
+    working_directory: /go/src/github.com/wearefair/log-aggregator
+    docker:
+      - image: golang:1.10.3-stretch
+    steps:
+      - checkout
+      - run:
+          name: Install journal development packages
+          command: |
+            apt-get update && apt-get install -y libsystemd-dev
+
+      - run:
+          name: Run unit tests
+          environment:
+            ENV: test
+          command: |
+            go test -v -race ./...
+
+      - run:
+          name: Verify the binary builds
+          command: go build -v
