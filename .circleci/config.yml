@@ -28,7 +28,7 @@ jobs:
           environment:
             ENV: test
           command: |
-            go test -v -race ./...
+            go test -v -race ./pkg/...
 
       - run:
           name: Verify the binary builds
