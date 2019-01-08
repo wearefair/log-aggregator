@@ -7,7 +7,7 @@ import (
 	"github.com/cenkalti/backoff"
 	"github.com/coreos/go-systemd/sdjournal"
 	"github.com/pkg/errors"
-	"github.com/wearefair/log-aggregator/monitoring"
+	"github.com/wearefair/log-aggregator/logging"
 	"github.com/wearefair/log-aggregator/types"
 )
 
@@ -87,7 +87,7 @@ func (c *Client) read() {
 		}
 		count, err = c.journal.Next()
 		if err != nil {
-			monitoring.Error(errors.Wrap(err, "Got error advancing entry from systemd Journal"))
+			logging.Error(errors.Wrap(err, "Got error advancing entry from systemd Journal"))
 			continue
 		}
 		if count == 0 {
@@ -99,7 +99,7 @@ func (c *Client) read() {
 		// then panic, as there is no way to recover
 		entry, err = c.readEntry()
 		if err != nil {
-			monitoring.Error(err)
+			logging.Error(err)
 			panic(err)
 		}
 

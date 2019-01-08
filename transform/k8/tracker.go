@@ -1,7 +1,6 @@
 package k8
 
 import (
-	"fmt"
 	"path/filepath"
 	"time"
 
@@ -10,7 +9,7 @@ import (
 
 	lru "github.com/hashicorp/golang-lru"
 	"github.com/pkg/errors"
-	"github.com/wearefair/service-kit-go/logging"
+	"github.com/wearefair/log-aggregator/logging"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/util/wait"
@@ -61,12 +60,12 @@ func watchForK8ConfigFile(client *Client, conf Config) {
 	for {
 		select {
 		case event := <-watcher.Events:
-			logging.Logger().Info("Got event for file", zap.String("name", event.Name))
+			logging.Logger.Info("Got event for file", zap.String("name", event.Name))
 			if event.Name == conf.K8ConfigPath {
-				logging.Logger().Info("Creating new tracker for k8 config file")
+				logging.Logger.Info("Creating new tracker for k8 config file")
 				tracker, err := newTracker(conf)
 				if err != nil {
-					logging.Logger().Error("Got error creating k8 tracker on fsnotify", zap.Error(err))
+					logging.Error(errors.Wrap(err, "Got error creating k8 tracker on fsnotify"))
 				} else {
 					client.tracker = tracker
 					watcher.Close()
@@ -104,7 +103,7 @@ func newPodTracker(client *kubernetes.Clientset, nodeName string, maxPods int) *
 }
 
 func (t *podTracker) watchForPods() {
-	_, podController := kcache.NewInformer(
+	err, podController := kcache.NewInformer(
 		kcache.NewListWatchFromClient(t.client.CoreV1().RESTClient(), "pods", v1.NamespaceAll, fields.Everything()),
 		&v1.Pod{},
 		resyncPeriod,
@@ -114,8 +113,10 @@ func (t *podTracker) watchForPods() {
 			UpdateFunc: t.OnUpdate,
 		},
 	)
+	if err != nil {
+		panic(err)
+	}
 	go podController.Run(wait.NeverStop)
-	return
 }
 
 func (t *podTracker) Get(namespaceName, podName string) *v1.Pod {
@@ -134,7 +135,7 @@ func (t *podTracker) OnAdd(obj interface{}) {
 	if pod, ok := obj.(*v1.Pod); ok {
 		if t.canTrackPod(pod) {
 			t.cache.Add(t.cacheKey(pod.Namespace, pod.Name), pod)
-			fmt.Printf("ADD %s : %s\n", pod.Namespace, pod.Name)
+			logging.Logger.Info("Pod added", zap.String("namespace", pod.Namespace), zap.String("pod", pod.Name))
 		}
 	}
 }
@@ -150,7 +151,7 @@ func (t *podTracker) OnUpdate(oldObj, newObj interface{}) {
 	}
 	if t.canTrackPod(newPod) {
 		t.cache.Add(t.cacheKey(newPod.Namespace, newPod.Name), newPod)
-		fmt.Printf("UPD %s : %s\n", newPod.Namespace, newPod.Name)
+		logging.Logger.Info("Pod updated", zap.String("namespace", newPod.Namespace), zap.String("pod", newPod.Name))
 	}
 }
 
@@ -168,13 +169,14 @@ func (t *podTracker) OnDelete(obj interface{}) {
 		return
 	}
 	t.cache.Remove(t.cacheKey(pod.Namespace, pod.Name))
-	fmt.Printf("DEL %s : %s\n", pod.Namespace, pod.Name)
+	logging.Logger.Info("Pod deleted", zap.String("namespace", pod.Namespace), zap.String("pod", pod.Name))
 }
 
 func (t *podTracker) cacheKey(namespaceName, podName string) string {
 	return namespaceName + "_" + podName
 }
 
+// Returns true if the pod is schedule our node.
 func (t *podTracker) canTrackPod(pod *v1.Pod) bool {
 	if pod.Spec.NodeName == "" {
 		return false

@@ -15,9 +15,8 @@ import (
 	"github.com/cenkalti/backoff"
 	"github.com/pkg/errors"
 	"github.com/wearefair/log-aggregator/channel"
-	"github.com/wearefair/log-aggregator/monitoring"
+	"github.com/wearefair/log-aggregator/logging"
 	"github.com/wearefair/log-aggregator/types"
-	"github.com/wearefair/service-kit-go/logging"
 )
 
 const (
@@ -69,7 +68,7 @@ func New(conf Config) *Client {
 	}
 
 	region := getRegion()
-	logging.Logger().Info("Setting aws region", zap.String("region", region))
+	logging.Logger.Info("Setting aws region", zap.String("region", region))
 	client := &Client{
 		firehoseClient:   firehose.New(sess, sess.Config.WithRegion(region)),
 		firehoseStream:   conf.FirehoseStream,
@@ -90,11 +89,10 @@ func (c *Client) Start(records <-chan *types.Record, progress chan<- types.Curso
 }
 
 func (c *Client) deliver() {
-	log := logging.Logger()
 	for {
 		records, ok := <-c.buffer
 		if !ok {
-			logging.Logger().Warn("record channel was unexpectedly closed")
+			logging.Logger.Warn("record channel was unexpectedly closed")
 			return
 		}
 
@@ -112,7 +110,7 @@ func (c *Client) deliver() {
 				}
 				out, err := c.firehoseClient.PutRecordBatch(input)
 				if err != nil {
-					log.Error(fmt.Sprintf("failed tp put record batch: %s", err))
+					logging.Logger.Error(fmt.Sprintf("failed tp put record batch: %s", err))
 					return err
 				}
 
@@ -133,7 +131,7 @@ func (c *Client) deliver() {
 					batchRecords = batchRecords[:index]
 					// return error so that the backoff alg will auto retry the remaining items in the batch.
 					err = errors.Errorf("%d items failed to insert, retrying them", *out.FailedPutCount)
-					log.Error(err.Error())
+					logging.Logger.Error(err.Error())
 					return err
 				}
 				return nil
@@ -161,7 +159,7 @@ func recordsToBatches(records []*types.Record, maxRecords, maxRecordSize, maxBat
 	for _, record := range records {
 		serialized, err := json.Marshal(record.Fields)
 		if err != nil {
-			monitoring.Error(errors.Wrap(err, "Failed to marshal record to json"))
+			logging.Error(errors.Wrap(err, "Failed to marshal record to json"))
 			continue
 		}
 

@@ -1,16 +1,16 @@
+// Package stdout provides a simple destination that prints all records to STDOUT.
+// It is primarily used for debugging and development.
 package stdout
 
 import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/wearefair/log-aggregator/monitoring"
+	"github.com/wearefair/log-aggregator/logging"
 	"github.com/wearefair/log-aggregator/types"
-	"github.com/wearefair/service-kit-go/logging"
 )
 
-type Client struct {
-}
+type Client struct{}
 
 func New() *Client {
 	return &Client{}
@@ -21,12 +21,12 @@ func (c *Client) Start(records <-chan *types.Record, progress chan<- types.Curso
 		for {
 			record, open := <-records
 			if !open {
-				logging.Logger().Warn("record channel was unexpectedly closed")
+				logging.Logger.Warn("record channel was unexpectedly closed")
 				return
 			}
 			jsonBytes, err := json.Marshal(record.Fields)
 			if err != nil {
-				monitoring.Error(err)
+				logging.Error(err)
 				break
 			}
 			fmt.Println(string(jsonBytes))
