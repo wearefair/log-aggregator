@@ -1,4 +1,4 @@
-# Log Aggregator (naming is hard)
+# Log Aggregator (naming is hard) [![CircleCI](https://circleci.com/gh/wearefair/log-aggregator.svg?style=svg)](https://circleci.com/gh/wearefair/log-aggregator)
 
 Reads logs from Journald, annotates/transforms, and forwards to AWS Kinesis Firehose.
 
