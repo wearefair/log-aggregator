@@ -9,7 +9,7 @@ searching and long-term archival.
 
 It also supports performing minimal transformation and annotation operations on each log entry.
 
-### Is this designed to be generally outside of Fair?
+### Is this designed to be generally usable outside of Fair?
 
 Not really, it's engineered to the specifics of our production environments.
 
@@ -43,7 +43,7 @@ While the log-aggregator does need access to Kubernetes APIs in order to annotat
 Because of this, the log-aggregator (installed as a Systemd unit) is started as soon as the instance network is online.
 This immedietly provides logs that can be reviewed if the instance is having startup issues, without having to SSH to a running instance.
 
-On machines that will run Kubernetes, a configuration file will eventually be written (by the Kubernetes bootstrap process) that the `kubelet` will use to talk to the `kube-apiserver`. The log-aggregator can watch for this file, and as soon as it is detected it enables the Kubernetes annotation transformer.
+On machines that will run Kubernetes, a configuration file will eventually be written (by the Kubernetes bootstrap process) that tells the kubelet how to talk to the Kubernetes API. The log-aggregator can watch for this file, and as soon as it is detected it enables the Kubernetes annotation transformer.
 
 ### AWS Instance Info
 
