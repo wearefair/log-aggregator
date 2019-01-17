@@ -36,7 +36,6 @@ We think so. It has been running in our production environments since April 2017
 
 
 ### Why a custom solution vs. something like Fluentd?
-
 We actually did run Fluentd in the past. Prior to switching our Docker log driver to Journald, we found that Fluentd was using unusually high CPU to watch the Docker logs directory.
 
 After switching to Journald, we also found that (at the time) the Fluentd/Ruby Journald integration was dropping fields.
