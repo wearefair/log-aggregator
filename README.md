@@ -109,21 +109,21 @@ import (
 )
 
 func main() {
-  cursor, _ := cursor.New("/var/log/log-aggregator.cursor")
+	cursor, _ := cursor.New("/var/log/log-aggregator.cursor")
 
-  // produce a log every 2 seconds
-  source = mock.New(time.Second * 2)
-  destination = stdout.New()
+	// produce a log every 2 seconds
+	source = mock.New(time.Second * 2)
+	destination = stdout.New()
 
-  logPipeline, _ := pipeline.New(pipeline.Config{
-    MaxBuffer:    200,
-    Cursor:       cursor,
-    Input:        source,
-    Destination:  destination,
-    Transformers: []transform.Transformer{json.Transform},
-  })
+	logPipeline, _ := pipeline.New(pipeline.Config{
+		MaxBuffer:    200,
+		Cursor:       cursor,
+		Input:        source,
+		Destination:  destination,
+		Transformers: []transform.Transformer{json.Transform},
+	})
 
-  logPipeline.Start()
+	logPipeline.Start()
 }
 ```
 
