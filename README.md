@@ -20,6 +20,7 @@ It also supports performing minimal transformation and annotation operations on 
 - [Usage](#usage)
   - [As a Package](#as-a-package)
   - [As a Binary](#as-a-binary)
+- [Building/Developing](#buildingdeveloping)
 
 ## FAQs
 
