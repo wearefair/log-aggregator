@@ -24,6 +24,40 @@ The main abstraction unit is a [Pipeline](https://godoc.org/github.com/wearefair
 - [Transformers](https://godoc.org/github.com/wearefair/log-aggregator/pkg/transform#Transformer): transform log records prior to sending to the destination.
 
 
+#### Example Pipeline
+Here is a simple pipeline that uses a mock source and destination, and applies the JSON transformer.
+
+```go
+package main
+
+import (
+	"time"
+
+	"github.com/wearefair/log-aggregator/pkg/cursor"
+	"github.com/wearefair/log-aggregator/pkg/destinations/stdout"
+	"github.com/wearefair/log-aggregator/pkg/pipeline"
+	"github.com/wearefair/log-aggregator/pkg/sources/mock"
+	"github.com/wearefair/log-aggregator/pkg/transform"
+	"github.com/wearefair/log-aggregator/pkg/transform/json"
+)
+
+func main() {
+  cursor, _ := cursor.New("/var/log/log-aggregator.cursor")
+  source = mock.New(time.Second * 2) # produce a log every 2 seconds
+  destination = stdout.New()
+
+  logPipeline, _ := pipeline.New(pipeline.Config{
+    MaxBuffer:    200,
+    Cursor:       cursor,
+    Input:        source,
+    Destination:  destination,
+    Transformers: []transform.Transformer{json.Transform},
+  })
+
+  logPipeline.start()
+}
+```
+
 ### Features/Design
 
 - Input: Journald
