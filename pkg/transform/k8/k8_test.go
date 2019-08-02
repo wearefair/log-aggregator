@@ -8,7 +8,7 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	k8types "k8s.io/apimachinery/pkg/types"
-	"k8s.io/client-go/pkg/api/v1"
+	v1 "k8s.io/client-go/pkg/api/v1"
 )
 
 func TestMatchRegex(t *testing.T) {
@@ -101,6 +101,31 @@ func TestTransform(t *testing.T) {
 		},
 	}
 	transformed, _ = k8.Transform(rec)
+	checkPodMetadata(t, transformed)
+
+	// Test 1.6 record with pod metadata
+	rec = &types.Record{
+		Fields: map[string]interface{}{
+			"CONTAINER_NAME":    "k8s_my-nginx_my-nginx-379829228-gb3mv_default_3341b837-5b59-11e7-b5c3-024de65267be_0",
+			"CONTAINER_ID_FULL": "mycontainerid",
+		},
+	}
+	pods["default_my-nginx-379829228-gb3mv"] = &v1.Pod{
+		ObjectMeta: metav1.ObjectMeta{
+			UID: k8types.UID("poduid"),
+			Labels: map[string]string{
+				"label1": "value1",
+			},
+		},
+		Spec: v1.PodSpec{
+			NodeName: "myhost",
+		},
+	}
+	transformed, _ = k8.Transform(rec)
+	checkPodMetadata1_6(t, transformed)
+}
+
+func checkPodMetadata(t *testing.T, transformed *types.Record) {
 	if val := transformed.Fields["docker"].(metadataDocker).ContainerId; val != "mycontainerid" {
 		t.Errorf("Expected container id to be %s, but got %s", "mycontainerid", val)
 	}
@@ -122,26 +147,9 @@ func TestTransform(t *testing.T) {
 	if val := transformed.Fields["kubernetes"].(metadataKubernetes).Labels["label1"]; val != "value1" {
 		t.Errorf("Expected Labels.label1 to be value1, but got %s", val)
 	}
+}
 
-	// Test 1.6 record with pod metadata
-	rec = &types.Record{
-		Fields: map[string]interface{}{
-			"CONTAINER_NAME":    "k8s_my-nginx_my-nginx-379829228-gb3mv_default_3341b837-5b59-11e7-b5c3-024de65267be_0",
-			"CONTAINER_ID_FULL": "mycontainerid",
-		},
-	}
-	pods["default_my-nginx-379829228-gb3mv"] = &v1.Pod{
-		ObjectMeta: metav1.ObjectMeta{
-			UID: k8types.UID("poduid"),
-			Labels: map[string]string{
-				"label1": "value1",
-			},
-		},
-		Spec: v1.PodSpec{
-			NodeName: "myhost",
-		},
-	}
-	transformed, _ = k8.Transform(rec)
+func checkPodMetadata1_6(t *testing.T, transformed *types.Record) {
 	if val := transformed.Fields["docker"].(metadataDocker).ContainerId; val != "mycontainerid" {
 		t.Errorf("Expected container id to be %s, but got %s", "mycontainerid", val)
 	}

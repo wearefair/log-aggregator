@@ -1,4 +1,4 @@
-# Log Aggregator (naming is hard) [![GoDoc](https://godoc.org/github.com/wearefair/log-aggregator?status.svg)](https://godoc.org/github.com/wearefair/log-aggregator/pkg) [![CircleCI](https://circleci.com/gh/wearefair/log-aggregator.svg?style=svg)](https://circleci.com/gh/wearefair/log-aggregator)
+# Log Aggregator (naming is hard) [![GoDoc](https://godoc.org/github.com/wearefair/log-aggregator?status.svg)](https://godoc.org/github.com/wearefair/log-aggregator/pkg) [![CircleCI](https://circleci.com/gh/wearefair/log-aggregator.svg?style=svg)](https://circleci.com/gh/wearefair/log-aggregator) [![Go Report Card](https://goreportcard.com/badge/wearefair/log-aggregator)](https://goreportcard.com/report/wearefair/log-aggregator)
 
 
 Reads logs from Journald, annotates/transforms, and forwards to AWS Kinesis Firehose.

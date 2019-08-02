@@ -1,3 +1,4 @@
+// Package journal for linux
 // These methods require being compiled on a system with the systemd headers
 package journal
 

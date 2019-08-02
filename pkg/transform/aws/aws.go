@@ -1,4 +1,4 @@
-// Reads ec2 metadata instance environment variables and sets them on the logs.
+// Package aws reads ec2 metadata instance environment variables and sets them on the logs.
 package aws
 
 import (
