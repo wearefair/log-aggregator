@@ -10,8 +10,10 @@ import (
 	"github.com/wearefair/log-aggregator/pkg/types"
 )
 
+// Client is a STDOUT client
 type Client struct{}
 
+// New returns a new STDOUT client
 func New() *Client {
 	return &Client{}
 }

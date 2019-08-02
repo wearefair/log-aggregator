@@ -6,6 +6,7 @@ import (
 	"go.uber.org/zap"
 )
 
+// Logger is an instance of *zap.Logger
 var Logger *zap.Logger
 
 func init() {
@@ -22,6 +23,7 @@ func init() {
 	}
 }
 
+// Error writes an error to the logger
 func Error(err error) {
 	Logger.Error(err.Error(), zap.Error(err))
 }

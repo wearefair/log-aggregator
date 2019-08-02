@@ -29,7 +29,7 @@ func entryToRecord(entry *JournalEntry) *types.Record {
 	}
 
 	// Copy entry fields to record fields
-	for k, _ := range entry.Fields {
+	for k := range entry.Fields {
 		fields[k] = entry.Fields[k]
 	}
 

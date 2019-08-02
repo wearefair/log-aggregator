@@ -19,7 +19,7 @@ func Transform(rec *types.Record) (*types.Record, error) {
 			}
 
 			// Copy parsed json fields onto root of record fields.
-			for k, _ := range parsed {
+			for k := range parsed {
 				rec.Fields[k] = parsed[k]
 			}
 

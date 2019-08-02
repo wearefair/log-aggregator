@@ -33,14 +33,13 @@ func New(conf Config) *Client {
 		client := NewWithTracker(nil, conf)
 		go watchForK8ConfigFile(client, conf)
 		return client
-	} else {
-		// File might exist, proceed normally.
-		tracker, err := newTracker(conf)
-		if err != nil {
-			panic(err)
-		}
-		return NewWithTracker(tracker, conf)
 	}
+	// File might exist, proceed normally.
+	tracker, err := newTracker(conf)
+	if err != nil {
+		panic(err)
+	}
+	return NewWithTracker(tracker, conf)
 }
 
 func NewWithTracker(tracker tracker, conf Config) *Client {
