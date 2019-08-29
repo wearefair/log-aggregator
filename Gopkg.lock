@@ -2,6 +2,17 @@
 
 
 [[projects]]
+  digest = "1:d5e752c67b445baa5b6cb6f8aa706775c2aa8e41aca95a0c651520ff2c80361a"
+  name = "github.com/Microsoft/go-winio"
+  packages = [
+    ".",
+    "pkg/guid",
+  ]
+  pruneopts = "UT"
+  revision = "6c72808b55902eae4c5943626030429ff20f3b63"
+  version = "v0.4.14"
+
+[[projects]]
   digest = "1:e34aee3a3941a81a219686e0c77f4727afb9ca2622ba3739d2ad0101b371e0f6"
   name = "github.com/PuerkitoBio/purell"
   packages = ["."]
@@ -86,6 +97,51 @@
   ]
   pruneopts = "UT"
   revision = "c3e06c6069653bf72034ed907d6749d3928fdacb"
+
+[[projects]]
+  digest = "1:c4c7064c2c67a0a00815918bae489dd62cd88d859d24c95115d69b00b3d33334"
+  name = "github.com/docker/docker"
+  packages = [
+    "api/types",
+    "api/types/blkiodev",
+    "api/types/container",
+    "api/types/events",
+    "api/types/filters",
+    "api/types/mount",
+    "api/types/network",
+    "api/types/reference",
+    "api/types/registry",
+    "api/types/strslice",
+    "api/types/swarm",
+    "api/types/time",
+    "api/types/versions",
+    "api/types/volume",
+    "client",
+    "pkg/tlsconfig",
+  ]
+  pruneopts = "UT"
+  revision = "092cba3727bb9b4a2f0e922cd6c0f93ea270e363"
+  version = "v1.13.1"
+
+[[projects]]
+  digest = "1:811c86996b1ca46729bad2724d4499014c4b9effd05ef8c71b852aad90deb0ce"
+  name = "github.com/docker/go-connections"
+  packages = [
+    "nat",
+    "sockets",
+    "tlsconfig",
+  ]
+  pruneopts = "UT"
+  revision = "7395e3f8aa162843a74ed6d48e79627d9792ac55"
+  version = "v0.4.0"
+
+[[projects]]
+  digest = "1:e95ef557dc3120984bb66b385ae01b4bb8ff56bcde28e7b0d1beed0cccc4d69f"
+  name = "github.com/docker/go-units"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "519db1ee28dcc9fd2474ae59fca29a810482bfb1"
+  version = "v0.4.0"
 
 [[projects]]
   digest = "1:2d580c68060ec463bca95f5f27230611e5c731a6e8195c31481f69a2b4eda05d"
@@ -284,22 +340,27 @@
   revision = "9b9c1afcb078c2080cd1fac84be67797a33a32e9"
 
 [[projects]]
-  digest = "1:5f0ed4b7698c8571e2938de6570f2865b38bf01cfb88f38f742beec4e6f61559"
+  digest = "1:f967dc8372ed01d510324308ceba611652532f5b750fc1f802c72526dee5dd6c"
   name = "golang.org/x/net"
   packages = [
     "context",
+    "context/ctxhttp",
     "http2",
     "http2/hpack",
     "idna",
     "lex/httplex",
+    "proxy",
   ]
   pruneopts = "UT"
   revision = "d1e1b351919c6738fdeb9893d5c998b161464f0c"
 
 [[projects]]
-  digest = "1:9b4e2242a9c43a32bc2ceb075231a3e52d6fbca10ab89526b3ae70df1613f5a6"
+  digest = "1:440999a0dde18af36177b1b484628e4554da68212b6e90fad915e28b9bee8b97"
   name = "golang.org/x/sys"
-  packages = ["unix"]
+  packages = [
+    "unix",
+    "windows",
+  ]
   pruneopts = "UT"
   revision = "07c182904dbd53199946ba614a412c61d3c548f5"
 
@@ -490,6 +551,7 @@
     "github.com/aws/aws-sdk-go/service/firehose",
     "github.com/cenkalti/backoff",
     "github.com/coreos/go-systemd/sdjournal",
+    "github.com/docker/docker/client",
     "github.com/hashicorp/golang-lru",
     "github.com/pkg/errors",
     "go.uber.org/zap",
