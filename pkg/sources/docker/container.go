@@ -1,6 +1,7 @@
 package docker
 
 import (
+	"encoding/json"
 	"io"
 	"log"
 	"strings"
@@ -49,6 +50,10 @@ func (container *container) stop() error {
 
 func (container *container) transform(data []byte) *types.Record {
 	fields := make(map[string]interface{})
+	if err := json.Unmarshal(data, &fields); err != nil {
+		log.Printf("Failed marshaling JSON from log")
+	}
+
 	return &types.Record{
 		Time:   time.Now(),
 		Cursor: types.Cursor(string(container.lastLog.Unix())),
