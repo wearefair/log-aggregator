@@ -2,6 +2,7 @@ package docker
 
 import (
 	"io"
+	"log"
 	"strings"
 	"time"
 
@@ -29,11 +30,13 @@ func (container *container) read() {
 	buf := make([]byte, bufSizeInBytes)
 	for {
 		n, err := container.rdr.Read(buf)
-		if n == 0 {
+		if err == io.EOF {
+			log.Printf("Error reading container logs. Error %s", err)
 			break
 		}
-		if err == io.EOF {
-			break
+		if n == 0 {
+			log.Printf("Empty results read from container logs")
+			continue
 		}
 		container.lastLog = time.Now()
 		container.out <- container.transform(buf)

@@ -59,12 +59,15 @@ func (docker *Docker) addContainer(containerID string) error {
 		return errors.Wrap(err, "Failed getting logs")
 	}
 
-	docker.containerLock.Lock()
-	docker.containers[containerID] = &container{
+	container := &container{
 		id:  containerID,
 		rdr: rdr,
 		out: docker.out,
 	}
+	go container.read()
+
+	docker.containerLock.Lock()
+	docker.containers[containerID] = container
 	docker.containerLock.Unlock()
 
 	return nil
