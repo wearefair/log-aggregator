@@ -21,7 +21,7 @@ type Pipeline struct {
 type Config struct {
 	MaxBuffer    int
 	Cursor       cursor.DB
-	Input        sources.Source
+	Inputs       []sources.Source
 	Destination  destinations.Destination
 	Transformers []transform.Transformer
 }
@@ -40,14 +40,18 @@ func New(conf Config) (*Pipeline, error) {
 }
 
 func (p *Pipeline) Start() {
-	p.conf.Input.Start(p.input)
+	for _, input := range p.conf.Inputs {
+		input.Start(p.input)
+	}
 	p.conf.Destination.Start(p.output, p.progress)
 	go p.transform()
 	go p.syncCursor()
 }
 
 func (p *Pipeline) Stop(timeout time.Duration) {
-	p.conf.Input.Stop()
+	for _, input := range p.conf.Inputs {
+		input.Stop()
+	}
 	time.Sleep(timeout)
 }
 

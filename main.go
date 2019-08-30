@@ -12,6 +12,7 @@ import (
 	"github.com/wearefair/log-aggregator/pkg/destinations/stdout"
 	"github.com/wearefair/log-aggregator/pkg/pipeline"
 	"github.com/wearefair/log-aggregator/pkg/sources"
+	"github.com/wearefair/log-aggregator/pkg/sources/docker"
 	sjournal "github.com/wearefair/log-aggregator/pkg/sources/journal"
 	"github.com/wearefair/log-aggregator/pkg/sources/mock"
 	"github.com/wearefair/log-aggregator/pkg/transform"
@@ -35,7 +36,7 @@ const (
 
 func main() {
 	var err error
-	var source sources.Source
+	var logInputs []sources.Source
 	var destination destinations.Destination
 	var logCursor cursor.DB
 	var transformers []transform.Transformer
@@ -52,14 +53,19 @@ func main() {
 
 	// Setup source
 	if os.Getenv(EnvMockSource) == "true" {
-		source = mock.New(time.Second * 2)
+		logInputs = []sources.Source{mock.New(time.Second * 2)}
 	} else {
-		source, err = sjournal.New(sjournal.ClientConfig{
+		journalD, err := sjournal.New(sjournal.ClientConfig{
 			Cursor: logCursor.Cursor(),
 		})
 		if err != nil {
 			panic(err)
 		}
+		docker, err := docker.NewDocker()
+		if err != nil {
+			panic(err)
+		}
+		logInputs = []sources.Source{journalD, docker}
 	}
 
 	// Setup destination
@@ -97,7 +103,7 @@ func main() {
 	logPipeline, err := pipeline.New(pipeline.Config{
 		MaxBuffer:    200,
 		Cursor:       logCursor,
-		Input:        source,
+		Inputs:       logInputs,
 		Destination:  destination,
 		Transformers: transformers,
 	})
