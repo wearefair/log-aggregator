@@ -13,7 +13,7 @@ import (
 
 type container struct {
 	id      string
-	lastLog time.Time
+	lastLog time.Time // TODO: This needs to be be persisted so that on restart logs can be read from where we left.
 	rdr     io.ReadCloser
 	out     chan<- *types.Record
 }

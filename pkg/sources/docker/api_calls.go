@@ -6,6 +6,7 @@ import (
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/events"
+	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/client"
 	"github.com/pkg/errors"
 )
@@ -27,7 +28,10 @@ var (
 	containerListOptions = types.ContainerListOptions{
 		All: true,
 	}
-	eventSubscribeOptions = types.EventsOptions{} // TODO add filter here so that it only gets events when new containers are created and destroyed
+	eventSubscribeOptions = types.EventsOptions{
+		Since:   "", // TODO: Needs to be stored to only get the events since the last time checked
+		Filters: filters.NewArgs(filters.KeyValuePair{Key: eventsToSubscribe, Value: "true"}),
+	}
 )
 
 func newClient() (*client.Client, error) {
