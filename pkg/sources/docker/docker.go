@@ -84,7 +84,7 @@ func (docker *Docker) removeContainer(containerID string) error {
 	}
 
 	if err := container.stop(); err != nil {
-		return errors.Wrapf(err, "Failed stopping to reader the container %s logs", containerID)
+		return errors.Wrapf(err, "Failed stopping log reader of container %s.", containerID)
 	}
 	delete(docker.containers, containerID)
 	return nil
@@ -126,9 +126,13 @@ func (docker *Docker) watchEvents() {
 
 func (docker *Docker) processEvent(msg events.Message) {
 	if containerID, ok := isContainerCreation(msg); ok {
-		docker.addContainer(containerID)
+		if err := docker.addContainer(containerID); err != nil {
+			log.Printf("Failed inserting container. Error :%s", err)
+		}
 	}
 	if containerID, ok := isContainerDestruction(msg); ok {
-		docker.removeContainer(containerID)
+		if err := docker.removeContainer(containerID); err != nil {
+			log.Printf("Failed removing container. Error :%s", err)
+		}
 	}
 }
