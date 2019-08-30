@@ -104,15 +104,24 @@ func (docker *Docker) initContainers() error {
 
 func (docker *Docker) watchEvents() {
 	message, errChan := listenToEvents(docker.client)
-	go func() {
-		err := <-errChan
-		if err != nil {
-			log.Printf("Error while listening for Docker events. Error %s", err)
+
+	listenToErrors := func() {
+		for {
+			err := <-errChan
+			if err != nil {
+				log.Printf("Error while listening for Docker events. Error %s", err)
+			}
 		}
-	}()
-	for {
-		docker.processEvent(<-message)
 	}
+
+	listenToEvents := func() {
+		for {
+			docker.processEvent(<-message)
+		}
+	}
+
+	go listenToErrors()
+	go listenToEvents()
 }
 
 func (docker *Docker) processEvent(msg events.Message) {
