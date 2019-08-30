@@ -18,19 +18,20 @@ type dockerClient interface {
 }
 
 var (
+	containerListOptions = types.ContainerListOptions{
+		All: true,
+	}
+	eventSubscribeOptions = types.EventsOptions{
+		Since:   "", // TODO: Needs to be stored to only get the events since the last read
+		Filters: filters.NewArgs(filters.KeyValuePair{Key: eventsToSubscribe, Value: "true"}),
+	}
 	logReaderOptions = types.ContainerLogsOptions{
 		ShowStdout: true,
 		ShowStderr: true,
 		Follow:     true,
 		Timestamps: true,
 		Details:    false,
-	}
-	containerListOptions = types.ContainerListOptions{
-		All: true,
-	}
-	eventSubscribeOptions = types.EventsOptions{
-		Since:   "", // TODO: Needs to be stored to only get the events since the last time checked
-		Filters: filters.NewArgs(filters.KeyValuePair{Key: eventsToSubscribe, Value: "true"}),
+		Since:      "", // TODO: Needs to be stored to get the logs since the last read. Should mimic how journald uses a curser on start.
 	}
 )
 
