@@ -9,11 +9,11 @@ import (
 	"github.com/wearefair/log-aggregator/pkg/logging"
 	"go.uber.org/zap"
 	fsnotify "gopkg.in/fsnotify/fsnotify.v1"
+	"k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/pkg/api/v1"
 	kcache "k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/clientcmd"
 )

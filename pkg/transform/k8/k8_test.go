@@ -6,9 +6,9 @@ import (
 
 	"github.com/wearefair/log-aggregator/pkg/types"
 
+	"k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	k8types "k8s.io/apimachinery/pkg/types"
-	v1 "k8s.io/client-go/pkg/api/v1"
 )
 
 func TestMatchRegex(t *testing.T) {
