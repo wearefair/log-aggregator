@@ -102,7 +102,7 @@ func newPodTracker(client *kubernetes.Clientset, nodeName string, maxPods int) *
 }
 
 func (t *podTracker) watchForPods() {
-	err, podController := kcache.NewInformer(
+	_, podController := kcache.NewInformer(
 		kcache.NewListWatchFromClient(t.client.CoreV1().RESTClient(), "pods", v1.NamespaceAll, fields.Everything()),
 		&v1.Pod{},
 		resyncPeriod,
@@ -112,9 +112,6 @@ func (t *podTracker) watchForPods() {
 			UpdateFunc: t.OnUpdate,
 		},
 	)
-	if err != nil {
-		panic(err)
-	}
 	go podController.Run(wait.NeverStop)
 }
 
