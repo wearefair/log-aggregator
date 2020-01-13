@@ -24,6 +24,24 @@
 #   go-tests = true
 #   unused-packages = true
 
+[[constraint]]
+  name = "k8s.io/client-go"
+  version = "kubernetes-1.15.6"
+
+[[constraint]]
+  name = "k8s.io/apimachinery"
+  version = "kubernetes-1.15.6"
+
+[[constraint]]
+  name = "k8s.io/api"
+  version = "kubernetes-1.15.6"
+
+
+# Had to specify this to get the k8s client code to compile
+[[override]]
+  name = "github.com/json-iterator/go"
+  revision = "ab8a2e0c74be9d3be70b3184d9acc634935ded82" 
+
 
 [prune]
   go-tests = true
